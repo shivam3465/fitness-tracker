@@ -1,7 +1,5 @@
-import DateHeader from "@/src/components/DateHeader";
 import Header from "@/src/components/Header";
-import { StatusBar } from "expo-status-bar";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Animated, View } from "react-native";
 import {
 	SafeAreaView,
@@ -15,7 +13,6 @@ const TOTAL_HEADER_HEIGHT = PRIMARY_HEADER_HEIGHT + SECONDARY_HEADER_HEIGHT;
 export default function HomeScreen() {
 	const scrollY = useRef(new Animated.Value(0)).current;
 	const insets = useSafeAreaInsets();
-	const [date, setDate] = useState(new Date());
 
 	const translateY = scrollY.interpolate({
 		inputRange: [0, PRIMARY_HEADER_HEIGHT],
@@ -24,10 +21,8 @@ export default function HomeScreen() {
 	});
 
 	return (
-		<View className="flex-1 bg-black">
-			<StatusBar style="light" />
-
-			{/* 🔥 FAKE STATUS BAR BACKGROUND */}
+		<View className="flex-1 ">
+			{/* FAKE STATUS BAR BACKGROUND */}
 			<View
 				style={{
 					position: "absolute",
@@ -40,7 +35,7 @@ export default function HomeScreen() {
 				}}
 			/>
 
-			{/* 🔥 HEADER STACK */}
+			{/* HEADER STACK */}
 			<Animated.View
 				style={{
 					position: "absolute",
@@ -50,17 +45,7 @@ export default function HomeScreen() {
 					transform: [{ translateY }],
 					zIndex: 50,
 				}}>
-				<View style={{ height: PRIMARY_HEADER_HEIGHT }}>
-					<Header />
-				</View>
-
-				<View style={{ height: SECONDARY_HEADER_HEIGHT }}>
-					<DateHeader
-						date={date}
-						onPrev={() => {}}
-						onNext={() => {}}
-					/>
-				</View>
+				<Header />
 			</Animated.View>
 
 			{/* CONTENT */}
@@ -73,12 +58,12 @@ export default function HomeScreen() {
 					[{ nativeEvent: { contentOffset: { y: scrollY } } }],
 					{ useNativeDriver: true },
 				)}>
-				{Array.from({ length: 30 }).map((_, i) => (
+				{/* {Array.from({ length: 30 }).map((_, i) => (
 					<View
 						key={i}
-						className="h-20 bg-[#121313] border-b border-[#373737]"
+						className="h-20 bg-[#1f1f1f] border-b border-[#373737]"
 					/>
-				))}
+				))} */}
 			</Animated.ScrollView>
 
 			<SafeAreaView edges={["bottom"]} />
