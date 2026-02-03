@@ -1,18 +1,10 @@
-import { router } from "expo-router";
-import { Pressable, Text, View } from "react-native";
+import { Text } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function AddExerciseScreen() {
 	return (
-		<View className="flex-1 bg-black px-4 pt-10">
-			<Text className="text-xl text-white font-semibold mb-4">
-				Add Exercise
-			</Text>
-
-			<Pressable
-				onPress={() => router.back()}
-				className="mt-6 bg-slate-800 p-3 rounded-md">
-				<Text className="text-white text-center">Go Back</Text>
-			</Pressable>
-		</View>
+		<SafeAreaView className="flex-1 bg-[#121313] justify-center items-center">
+			<Text className="text-white text-lg">Add exercise Screen</Text>
+		</SafeAreaView>
 	);
 }

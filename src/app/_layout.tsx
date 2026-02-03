@@ -7,12 +7,19 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 
 import "../../global.css";
+import AddExerciseHeader from "../components/AddExerciseHeader";
 
 export default function RootLayout() {
 	return (
 		<ThemeProvider value={DarkTheme || DefaultTheme}>
 			<Stack>
 				<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+				<Stack.Screen
+					name="add-exercise"
+					options={{
+						header: () => <AddExerciseHeader />,
+					}}
+				/>
 			</Stack>
 			<StatusBar style="auto" />
 		</ThemeProvider>

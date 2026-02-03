@@ -1,8 +1,9 @@
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Entypo from "@expo/vector-icons/Entypo";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { useState } from "react";
-import { Animated, Pressable, Text, View } from "react-native";
+import { Animated, Platform, Pressable, Text, View } from "react-native";
 import { formatWorkoutDate } from "../utils/date.utils";
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
 export default function Header() {
 	const [isConsistent, setIsConsistent] = useState(true);
 	const [date, setDate] = useState(new Date());
+	const [open, setOpen] = useState(false);
 
 	const onDateChange = (direction: number) => {
 		const newDate = new Date(date);
@@ -64,17 +66,40 @@ export default function Header() {
 			</View>
 
 			{/* Date header  */}
-			<View className="flex-row items-center justify-between px-4 py-2 border-b border-slate-800 bg-[#111111] h-[41px]">
-				<Pressable onPress={() => onDateChange(-1)}>
-					<AntDesign name="left" size={18} color="#f1f5f9" />
+			<View className="flex-row items-center justify-between px-4 py-2 border-b border-slate-800 bg-[#111111] h-[50px]">
+				<Pressable
+					onPress={() => onDateChange(-1)}
+					className="flex items-center justify-center w-20 h-full">
+					<AntDesign name="left" size={20} color="#f1f5f9" />
 				</Pressable>
 
-				<Text className="text-slate-100 text-base font-medium">
-					{formatWorkoutDate(date)}
-				</Text>
+				<>
+					<Pressable onPress={() => setOpen(true)}>
+						<Text className="text-slate-100 text-base font-medium">
+							{formatWorkoutDate(date)}
+						</Text>
+					</Pressable>
 
-				<Pressable onPress={() => onDateChange(1)}>
-					<AntDesign name="right" size={18} color="#f1f5f9" />
+					{open && (
+						<DateTimePicker
+							value={date}
+							mode="date"
+							themeVariant="dark"
+							display={
+								Platform.OS === "ios" ? "spinner" : "calendar"
+							}
+							onChange={(_, selectedDate) => {
+								setOpen(false);
+								if (selectedDate) setDate(selectedDate);
+							}}
+						/>
+					)}
+				</>
+
+				<Pressable
+					onPress={() => onDateChange(1)}
+					className="flex items-center justify-center w-20 h-full">
+					<AntDesign name="right" size={20} color="#f1f5f9" />
 				</Pressable>
 			</View>
 		</View>
