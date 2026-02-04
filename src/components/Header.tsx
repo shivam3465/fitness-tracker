@@ -24,7 +24,7 @@ export default function Header() {
 	return (
 		<View>
 			{/* Main header  */}
-			<View className="flex-row items-center justify-between border-b-[1px] border-slate-800 p-4 bg-[#111111] h-[60px]">
+			<View className="flex-row items-center justify-between border-b-[1px] border-slate-800 p-4 bg-primary h-[60px]">
 				<View>
 					<Text className="text-lg text-slate-100 font-semibold">
 						FitnessTracker
@@ -66,7 +66,7 @@ export default function Header() {
 			</View>
 
 			{/* Date header  */}
-			<View className="flex-row items-center justify-between px-4 py-2 border-b border-slate-800 bg-[#111111] h-[50px]">
+			<View className="flex-row items-center justify-between px-4 py-2 border-b border-slate-800 bg-primary h-[50px]">
 				<Pressable
 					onPress={() => onDateChange(-1)}
 					className="flex items-center justify-center w-20 h-full">

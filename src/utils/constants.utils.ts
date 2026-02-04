@@ -1,0 +1,3 @@
+export const EXERCISE_KEY = "EXERCISES";
+export const CATEGORY_KEY = "MUSCLE_CATEGORIES";
+export const EXERCISE_LOG_KEY = "EXERCISE_LOGS";

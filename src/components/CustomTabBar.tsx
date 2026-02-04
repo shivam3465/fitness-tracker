@@ -10,7 +10,7 @@ export default function CustomTabBar({ state, navigation }: any) {
 	};
 
 	return (
-		<View className="h-[80px] flex-row bg-[#111111] items-center justify-around px-4 border-t-[1px] border-slate-800">
+		<View className="h-[80px] flex-row bg-primary items-center justify-around px-4 border-t-[1px] border-slate-800">
 			{/* HOME */}
 			<Pressable
 				onPress={() => navigation.navigate("index")}

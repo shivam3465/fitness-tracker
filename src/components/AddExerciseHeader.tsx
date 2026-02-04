@@ -10,9 +10,7 @@ function AddExerciseHeader() {
 		<View
 			style={{
 				paddingTop: insets.top,
-				backgroundColor: "#111111",
-				borderBottomWidth: 1,
-				borderBottomColor: "#1f2937",
+				backgroundColor: "#090909",
 			}}>
 			<View className="h-14 flex-row items-center px-3">
 				{/* BACK BUTTON */}

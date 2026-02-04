@@ -28,7 +28,7 @@ export default function TabLayout() {
 					left: 0,
 					right: 0,
 					height: insets.top,
-					backgroundColor: "#111111", // APP COLOR
+					backgroundColor: "#090909", // APP COLOR
 					zIndex: 100,
 				}}
 			/>

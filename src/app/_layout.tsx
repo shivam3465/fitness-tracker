@@ -20,6 +20,14 @@ export default function RootLayout() {
 						header: () => <AddExerciseHeader />,
 					}}
 				/>
+				<Stack.Screen
+					name="new-exercise"
+					options={{ headerTitle: "New Exercise" }}
+				/>
+				<Stack.Screen
+					name="new-category"
+					options={{ headerTitle: "New Muscle Category" }}
+				/>
 			</Stack>
 			<StatusBar style="auto" />
 		</ThemeProvider>
