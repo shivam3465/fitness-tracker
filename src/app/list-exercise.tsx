@@ -9,44 +9,48 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ExerciseModel } from "../models/Exercise.model";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { setSelectedExercise } from "../redux/reducers/Application.reducers";
 
-// Dummy Data how we will store exercise in phone internal storage
-const EXERCISES = [
-	{ id: "1", name: "Bicep Curls", category: "Biceps" },
-	{ id: "2", name: "Tricep Pushdown", category: "Triceps" },
-	{ id: "3", name: "Lat Pulldown", category: "Back" },
-	{ id: "4", name: "Bench Press", category: "Chest" },
-	{ id: "5", name: "Hammer Curls", category: "Biceps" },
-	{ id: "6", name: "Dumbbell Rows", category: "Back" },
-	{ id: "7", name: "Shoulder Press", category: "Shoulders" },
-];
-
-//how we will store categories in phone internal storage
-const CATEGORIES = ["All", "Biceps", "Triceps", "Back", "Chest", "Shoulders"];
-
-export default function AddExerciseScreen() {
+export default function LogExerciseScreen() {
 	const [search, setSearch] = useState("");
-	const [activeCat, setActiveCat] = useState("All");
+	const [activeCat, setActiveCat] = useState("All"); //stores id of active category
 	const [isModalVisible, setIsModalVisible] = useState(false);
 
-	const filteredExercises = EXERCISES.filter((item) => {
+	const storedExerciseList = useAppSelector((state) => state.exerciseList);
+	const storedCategoriesList = [
+		...useAppSelector((state) => state.categoryList),
+	];
+
+	storedCategoriesList.unshift({ id: "All", name: "All" });
+
+	const dispatch = useAppDispatch();
+
+	const filteredExercises = storedExerciseList.filter((item) => {
 		const matchesCategory =
-			activeCat === "All" || item.category === activeCat;
+			activeCat === "All" ||
+			item.muscleGroup.some((cat) => cat.id === activeCat);
+
 		const matchesSearch = item.name
 			.toLowerCase()
 			.includes(search.toLowerCase());
 		return matchesCategory && matchesSearch;
 	});
 
+	const handleExerciseAdd = (exercise: ExerciseModel) => {
+		dispatch(setSelectedExercise(exercise));
+		router.push("/log-exercise");
+	};
+
 	return (
-		<SafeAreaView className="flex-1 bg-secondary px-4">
+		<View className="flex-1 bg-secondary mt-8 px-4 py-0">
 			{/* Search Bar */}
-			<View className="mt-4 mb-6">
+			<View className="mt-0 mb-6">
 				<TextInput
 					placeholder="Search exercise..."
 					placeholderTextColor="#666"
-					className="bg-[#1c1c1e] text-white p-4 rounded-xl border border-gray-800"
+					className="bg-[#1f1f20] text-white p-4 rounded-xl border border-[#444444]"
 					value={search}
 					onChangeText={setSearch}
 				/>
@@ -55,17 +59,17 @@ export default function AddExerciseScreen() {
 			{/* Category Row */}
 			<View className="mb-6">
 				<FlatList
-					data={CATEGORIES}
+					data={storedCategoriesList}
 					horizontal
 					showsHorizontalScrollIndicator={false}
-					keyExtractor={(item) => item}
+					keyExtractor={(item) => item.id}
 					renderItem={({ item }) => (
 						<TouchableOpacity
-							onPress={() => setActiveCat(item)}
-							className={`mr-3 px-5 py-2 rounded-full ${activeCat === item ? "bg-orange-500" : "bg-[#1c1c1e]"}`}>
+							onPress={() => setActiveCat(item.id)}
+							className={`mr-3 px-5 py-2 rounded-full ${activeCat === item.id ? "bg-orange-500" : "bg-[#1c1c1e]"}`}>
 							<Text
-								className={`font-bold ${activeCat === item ? "text-white" : "text-gray-400"}`}>
-								{item}
+								className={`font-bold ${activeCat === item.id ? "text-white" : "text-gray-400"}`}>
+								{item.name}
 							</Text>
 						</TouchableOpacity>
 					)}
@@ -84,16 +88,29 @@ export default function AddExerciseScreen() {
 					</Text>
 				}
 				renderItem={({ item }) => (
-					<View className="bg-[#28282a] p-4 mb-3 rounded-xl flex-row justify-between items-center">
-						<View>
-							<Text className="text-white font-semibold text-lg">
+					<View className="bg-[#28282a] px-4 py-2 mb-3 rounded-xl flex-row justify-between items-center">
+						<View className="flex-1">
+							<Text className="text-[#cecece] font-semibold text-lg">
 								{item.name}
 							</Text>
-							<Text className="text-gray-500 text-sm">
-								{item.category}
-							</Text>
+
+							<View className="flex items-center flex-row mt-2 flex-wrap">
+								{item.muscleGroup.map((cat) => (
+									<Text
+										key={cat.id}
+										className="text-gray-500 text-sm rounded-md px-2 py-1 mr-2 my-1 bg-[#202020] border-[1px] border-[#353535] flex items-center justify-center">
+										{cat.name}
+									</Text>
+								))}
+							</View>
 						</View>
-						<Text className="text-orange-500 text-2xl">+</Text>
+						<Pressable
+							onPress={() => handleExerciseAdd(item)}
+							className="w-[45px] h-max flex justify-center items-center active:bg-[#3f3f3f]">
+							<Text className="text-orange-500 text-3xl font-bold">
+								+
+							</Text>
+						</Pressable>
 					</View>
 				)}
 			/>
@@ -182,6 +199,6 @@ export default function AddExerciseScreen() {
 					</View>
 				</Pressable>
 			</Modal>
-		</SafeAreaView>
+		</View>
 	);
 }

@@ -1,6 +1,6 @@
 import { ExerciseInstrument } from "../types/ExerciseInstrument";
 
-export interface SetModel {
+export interface ExerciseSetModel {
 	id: string;
 	repetitions: number;
 	weight: number; // in kilograms

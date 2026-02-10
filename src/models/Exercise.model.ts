@@ -1,5 +1,5 @@
-import { MuscleGroup } from "../types/MuscleGroup";
-import { SetModel } from "./SetModel";
+import { ExerciseSetModel } from "./ExerciseSet.model";
+import { MuscleGroup } from "./MuscleGroup.model";
 
 export interface ExerciseModel {
 	id: string;
@@ -10,6 +10,7 @@ export interface ExerciseModel {
 export interface ExerciseListModel {
 	id: string;
 	name: string;
-	sets: SetModel[];
+	sets: ExerciseSetModel[];
 	muscleGroup: MuscleGroup[];
+	date: Date;
 }

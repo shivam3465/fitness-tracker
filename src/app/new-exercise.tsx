@@ -8,31 +8,32 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { ExerciseModel } from "../models/Exercise";
+import { ExerciseModel } from "../models/Exercise.model";
+import { MuscleGroup } from "../models/MuscleGroup.model";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { setExercises } from "../redux/reducers/Exercise.reducers";
 import { StorageService } from "../services/storage.services";
-import { MuscleGroup } from "../types/MuscleGroup";
 
 export default function NewExerciseScreen() {
 	const [ExerciseName, setExerciseName] = useState("");
 
-	//filtered exercise list for display
-	const [ExerciseList, setExerciseList] = useState<ExerciseModel[]>([]);
+	const storedExerciseList = useAppSelector((state) => state.exerciseList);
+	const storedCategoriesList = useAppSelector((state) => state.categoryList);
 
-	//store fetched exercises from storage
-	const [storedExerciseList, setStoredExerciseList] = useState<
-		ExerciseModel[]
-	>([]);
+	//filtered exercise list for display
+	const [ExerciseList, setExerciseList] =
+		useState<ExerciseModel[]>(storedExerciseList);
 
 	//for displaying available categories to select from
-	const [availableCategories, setAvailableCategories] = useState<
-		MuscleGroup[]
-	>([]);
+	const [availableCategories, setAvailableCategories] =
+		useState<MuscleGroup[]>(storedCategoriesList);
 
 	//stores selected categories for the new exercise
 	const [categoryInputList, setCategoryInputList] = useState<MuscleGroup[]>(
 		[],
 	);
+
+	const dispatch = useAppDispatch();
 
 	const filterExercise = (ExerciseName: string) => {
 		setExerciseName(ExerciseName);
@@ -49,7 +50,7 @@ export default function NewExerciseScreen() {
 		setExerciseList(filteredExercises);
 	};
 
-	const createExercise = async () => {
+	const createNewExercise = async () => {
 		if (!ExerciseName.trim()) return;
 
 		const newExercise: ExerciseModel = {
@@ -59,6 +60,7 @@ export default function NewExerciseScreen() {
 		};
 
 		const updated = await StorageService.addExercise(newExercise);
+		dispatch(setExercises(updated));
 
 		setExerciseList(updated);
 		setExerciseName("");
@@ -68,6 +70,7 @@ export default function NewExerciseScreen() {
 	const deleteExercise = async (id: string) => {
 		const updated = ExerciseList.filter((item) => item.id !== id);
 		await StorageService.saveExercises(updated);
+		dispatch(setExercises(updated));
 		setExerciseList(updated);
 	};
 
@@ -91,19 +94,11 @@ export default function NewExerciseScreen() {
 	};
 
 	useEffect(() => {
-		const load = async () => {
-			const foundExerciseList = await StorageService.getExercises();
-			setExerciseList(foundExerciseList);
-			setStoredExerciseList(foundExerciseList);
-
-			const foundCategories = await StorageService.getCategories();
-			setAvailableCategories(foundCategories);
-		};
-		load();
-	}, []);
+		setAvailableCategories(storedCategoriesList);
+	}, [storedCategoriesList]);
 
 	return (
-		<SafeAreaView className="flex-1 bg-secondary px-4">
+		<View className="flex-1 bg-secondary px-4 mt-8">
 			<FlatList
 				data={ExerciseList}
 				keyExtractor={(item) => item.id}
@@ -221,13 +216,13 @@ export default function NewExerciseScreen() {
 				<TouchableOpacity
 					disabled={!isValidExercise()}
 					className={` p-4 rounded-xl w-full ${isValidExercise() ? "bg-orange-500" : "bg-[#3a4049]"} `}
-					onPress={createExercise}>
+					onPress={createNewExercise}>
 					<Text
 						className={`${isValidExercise() ? "text-white" : "text-gray-500"} text-center font-semibold text-lg`}>
 						Create New Exercise
 					</Text>
 				</TouchableOpacity>
 			</View>
-		</SafeAreaView>
+		</View>
 	);
 }

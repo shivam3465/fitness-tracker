@@ -1,5 +1,5 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
 	FlatList,
 	Text,
@@ -7,25 +7,27 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { MuscleGroup } from "../models/MuscleGroup.model";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { setCategories } from "../redux/reducers/Category.reducers";
 import { StorageService } from "../services/storage.services";
-import { MuscleGroup } from "../types/MuscleGroup";
 
 export default function NewCategoryScreen() {
 	const [categoryName, setCategoryName] = useState("");
-	const [categoryList, setCategoryList] = useState<MuscleGroup[]>([]);
-	const [storedCategories, setStoredCategories] = useState<MuscleGroup[]>([]);
+
+	//fixed list of all categories shared across the app
+	const categories = useAppSelector((state) => state.categoryList);
+
+	//dynamic list used to display filtered list
+	const [categoryList, setCategoryList] = useState<MuscleGroup[]>(categories);
+
+	const dispatch = useAppDispatch();
 
 	const filterCategory = (categoryName: string) => {
 		categoryName = categoryName.trim();
 		setCategoryName(categoryName);
 
-		if (categoryName.trim() === "") {
-			setCategoryList(storedCategories);
-			return;
-		}
-
-		const filteredCategories = categoryList.filter((item) =>
+		const filteredCategories = categories.filter((item) =>
 			item.name.toLowerCase().includes(categoryName.toLowerCase()),
 		);
 		setCategoryList(filteredCategories);
@@ -42,27 +44,20 @@ export default function NewCategoryScreen() {
 		const updated = await StorageService.addCategory(newCategory);
 
 		setCategoryList(updated);
-		setCategoryList(updated);
+		dispatch(setCategories(updated));
+
 		setCategoryName("");
 	};
 
 	const deleteCategory = async (id: string) => {
 		const updated = categoryList.filter((item) => item.id !== id);
 		await StorageService.saveCategories(updated);
+		dispatch(setCategories(updated));
 		setCategoryList(updated);
 	};
 
-	useEffect(() => {
-		const load = async () => {
-			const storedCategories = await StorageService.getCategories();
-			setCategoryList(storedCategories);
-			setStoredCategories(storedCategories);
-		};
-		load();
-	}, []);
-
 	return (
-		<SafeAreaView className="flex-1 bg-secondary px-4 relative">
+		<View className="flex-1 bg-secondary px-4 mt-8 relative">
 			<View className="mb-6">
 				<Text className="text-white text-lg mb-3">
 					New Muscle Category
@@ -127,6 +122,6 @@ export default function NewCategoryScreen() {
 					</Text>
 				</TouchableOpacity>
 			</View>
-		</SafeAreaView>
+		</View>
 	);
 }

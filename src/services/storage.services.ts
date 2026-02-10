@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ExerciseModel } from "../models/Exercise";
-import { MuscleGroup } from "../types/MuscleGroup";
+import { ExerciseModel } from "../models/Exercise.model";
+import { MuscleGroup } from "../models/MuscleGroup.model";
 import { CATEGORY_KEY, EXERCISE_KEY } from "../utils/constants.utils";
 
 export const StorageService = {

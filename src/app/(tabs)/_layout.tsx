@@ -56,7 +56,7 @@ export default function TabLayout() {
 			{/* FLOATING CENTER ADD BUTTON */}
 			<View className="absolute bottom-[48px] left-0 right-0 items-center z-50">
 				<Pressable
-					onPress={() => router.push("/add-exercise")}
+					onPress={() => router.push("/list-exercise")}
 					className="h-[56px] w-[56px] rounded-full bg-orange-500 items-center justify-center shadow-xl">
 					<AntDesign name="plus" size={36} color="white" />
 				</Pressable>
