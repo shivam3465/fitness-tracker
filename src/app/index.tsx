@@ -6,6 +6,7 @@ import "../../global.css";
 import { useAppDispatch } from "../redux/hooks";
 import { setCategories } from "../redux/reducers/Category.reducers";
 import { setExercises } from "../redux/reducers/Exercise.reducers";
+import { setExerciseLogs } from "../redux/reducers/ExerciseLogs.reducers";
 import { StorageService } from "../services/storage.services";
 
 export default function App() {
@@ -15,6 +16,7 @@ export default function App() {
 		const load = async () => {
 			dispatch(setCategories(await StorageService.getCategories()));
 			dispatch(setExercises(await StorageService.getExercises()));
+			dispatch(setExerciseLogs(await StorageService.getExercisesLogs()));
 		};
 		load();
 

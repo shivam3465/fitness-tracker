@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { ExerciseModel } from "../models/Exercise.model";
 import { ExerciseLogModel } from "../models/ExerciseLog.model";
 import { ExerciseSetModel } from "../models/ExerciseSet.model";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
@@ -18,6 +19,7 @@ import {
 	logExercise,
 	setExerciseLogs,
 } from "../redux/reducers/ExerciseLogs.reducers";
+import { StorageService } from "../services/storage.services";
 import { showError, showSuccess } from "../services/toast.services";
 import { ExerciseInstrument } from "../types/ExerciseInstrument";
 import { formatWorkoutDate } from "../utils/date.utils";
@@ -26,8 +28,8 @@ export default function LogExerciseScreen() {
 	const storedDate = useAppSelector(
 		(state) => state.applicationContext.exerciseDate,
 	);
-	const selectedExercise = useAppSelector(
-		(state) => state.applicationContext.selectedExercise,
+	const [selectedExercise, setSelectedExercise] = useState(
+		useAppSelector((state) => state.applicationContext.selectedExercise),
 	);
 	const logExerciseEvent = useAppSelector(
 		(state) => state.exerciseLogsList.submissionEvent,
@@ -35,16 +37,26 @@ export default function LogExerciseScreen() {
 	const exerciseLogsList = useAppSelector(
 		(state) => state.exerciseLogsList.exerciseListData,
 	);
+	const exerciseOptionsList = useAppSelector((state) => state.exerciseList);
 
 	const [date, setDate] = useState<Date>(() =>
 		storedDate ? new Date(storedDate) : new Date(),
 	);
 	const [datePickerOpen, setDatePickerOpen] = useState(false);
+	const [exercisePickerOpen, setExercisePickerOpen] = useState(false);
 
 	const [sets, setSets] = useState<ExerciseSetModel[]>([]);
 	const [openSetId, setOpenSetId] = useState<string | null>(null);
 
 	const dispatch = useAppDispatch();
+
+	const exerciseOptionsItems = Object.values(exerciseOptionsList).map(
+		(exercise) => ({
+			label:
+				exercise.name.charAt(0).toUpperCase() + exercise.name.slice(1),
+			value: exercise.id,
+		}),
+	);
 
 	const instrumentItems = Object.values(ExerciseInstrument).map(
 		(instrument) => ({
@@ -54,9 +66,14 @@ export default function LogExerciseScreen() {
 	);
 
 	const instrumentItemMap = new Map<string, ExerciseInstrument>();
+	const exerciseListMap = new Map<string, ExerciseModel>();
 
 	Object.values(ExerciseInstrument).forEach((instrument) => {
 		instrumentItemMap.set(instrument, instrument);
+	});
+
+	Object.values(exerciseOptionsList).forEach((exercise) => {
+		exerciseListMap.set(exercise.id, exercise);
 	});
 
 	const addSet = () => {
@@ -89,13 +106,13 @@ export default function LogExerciseScreen() {
 	const validateExerciseData = (data: ExerciseLogModel): boolean => {
 		// 1. Exercise name
 		if (!data.exercise) {
-			showError("Select one Exercise");
+			showError("Select one Exercise", "", 800);
 			return false;
 		}
 
 		// 3. Sets
 		if (!data.sets || data.sets.length === 0) {
-			showError("Add at least one set");
+			showError("Add at least one set", "", 800);
 			return false;
 		}
 
@@ -105,7 +122,7 @@ export default function LogExerciseScreen() {
 
 			// repetitions
 			if (!set.repetitions || set.repetitions <= 0) {
-				showError(`Invalid repetitions in set ${i + 1}`);
+				showError(`Invalid repetitions in set ${i + 1}`, "", 800);
 				return false;
 			}
 
@@ -113,7 +130,7 @@ export default function LogExerciseScreen() {
 			if (
 				!Object.values(ExerciseInstrument).includes(set.performedWith)
 			) {
-				showError(`Invalid instrument in set ${i + 1}`);
+				showError(`Invalid instrument in set ${i + 1}`, "", 800);
 				return false;
 			}
 
@@ -122,7 +139,7 @@ export default function LogExerciseScreen() {
 				set.performedWith !== ExerciseInstrument.BODYWEIGHT &&
 				(!set.weight || set.weight <= 0)
 			) {
-				showError(`Invalid weight in set ${i + 1}`);
+				showError(`Invalid weight in set ${i + 1}`, "", 800);
 				return false;
 			}
 		}
@@ -130,9 +147,9 @@ export default function LogExerciseScreen() {
 		return true;
 	};
 
-	const saveExerciseDataToStorage = () => {
+	const saveExerciseDataToStorage = async () => {
 		const exerciseData: ExerciseLogModel = {
-			id: date.getTime().toString(),
+			id: new Date().getTime().toString(),
 			exercise: selectedExercise,
 			date: date.toISOString(),
 			sets,
@@ -143,15 +160,16 @@ export default function LogExerciseScreen() {
 			return;
 		}
 
-		// ✅ Data valid — save to storage
+		// Data valid — save to storage
+		await StorageService.addExerciseLogs(exerciseData);
 		dispatch(setExerciseLogs([...exerciseLogsList, exerciseData]));
-		showSuccess("Exercise logged !");
+		showSuccess("Exercise logged !", "", 800);
 		dispatch(logExercise(false));
 
 		//navigate to previous screen
 		setTimeout(() => {
 			router.back();
-		}, 700);
+		}, 800);
 	};
 
 	//receives submission event from header to save exercise data
@@ -159,6 +177,7 @@ export default function LogExerciseScreen() {
 		if (logExerciseEvent) {
 			saveExerciseDataToStorage();
 		}
+		dispatch(logExercise(false));
 	}, [logExerciseEvent]);
 
 	return (
@@ -194,9 +213,43 @@ export default function LogExerciseScreen() {
 			{/* Exercise */}
 			<View className="mb-4">
 				<Text className="text-gray-400 mb-1 mt-3">Exercise</Text>
-				<Text className="text-white text-lg bg-[#262627] px-4 py-3 rounded-lg border border-[#3a4049]">
-					{selectedExercise.name}
-				</Text>
+				{
+					<DropDownPicker
+						open={exercisePickerOpen}
+						value={selectedExercise.id}
+						items={exerciseOptionsItems}
+						setOpen={(open) => {
+							return setExercisePickerOpen(!exercisePickerOpen);
+						}}
+						setValue={(cb) => {
+							const foundExercise = exerciseListMap.get(
+								cb(selectedExercise.id),
+							);
+							if (foundExercise) {
+								return setSelectedExercise(foundExercise);
+							}
+							return null;
+						}}
+						listMode="SCROLLVIEW"
+						style={{
+							backgroundColor: "#262627",
+							borderColor: "#3a4049",
+						}}
+						dropDownContainerStyle={{
+							backgroundColor: "#1c1c1e",
+							borderColor: "#3a4049",
+						}}
+						textStyle={{ color: "#fff" }}
+						zIndex={3000}
+						zIndexInverse={1000}
+						ArrowDownIconComponent={() => (
+							<AntDesign name="down" size={14} color="white" />
+						)}
+						ArrowUpIconComponent={() => (
+							<AntDesign name="up" size={14} color="white" />
+						)}
+					/>
+				}
 			</View>
 
 			{/* Sets */}

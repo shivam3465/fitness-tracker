@@ -1,7 +1,12 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ExerciseModel } from "../models/Exercise.model";
+import { ExerciseLogModel } from "../models/ExerciseLog.model";
 import { MuscleGroup } from "../models/MuscleGroup.model";
-import { CATEGORY_KEY, EXERCISE_KEY } from "../utils/constants.utils";
+import {
+	CATEGORY_KEY,
+	EXERCISE_KEY,
+	EXERCISE_LOG_KEY,
+} from "../utils/constants.utils";
 
 export const StorageService = {
 	async getCategories(): Promise<MuscleGroup[]> {
@@ -63,5 +68,39 @@ export const StorageService = {
 
 	async clearExercises(): Promise<void> {
 		await AsyncStorage.removeItem(EXERCISE_KEY);
+	},
+
+	async getExercisesLogs(): Promise<ExerciseLogModel[]> {
+		try {
+			const data = await AsyncStorage.getItem(EXERCISE_LOG_KEY);
+			return data ? JSON.parse(data) : [];
+		} catch (error) {
+			console.log("Error reading exercises", error);
+			return [];
+		}
+	},
+
+	async saveExercisesLogs(exercises: ExerciseLogModel[]): Promise<void> {
+		try {
+			await AsyncStorage.setItem(
+				EXERCISE_LOG_KEY,
+				JSON.stringify(exercises),
+			);
+		} catch (error) {
+			console.log("Error saving exercises", error);
+		}
+	},
+
+	async addExerciseLogs(
+		exercise: ExerciseLogModel,
+	): Promise<ExerciseLogModel[]> {
+		const exercises = await this.getExercisesLogs();
+		const updated = [...exercises, exercise];
+		await this.saveExercisesLogs(updated);
+		return updated;
+	},
+
+	async clearExercisesLogs(): Promise<void> {
+		await AsyncStorage.removeItem(EXERCISE_LOG_KEY);
 	},
 };

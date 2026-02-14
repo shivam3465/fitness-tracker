@@ -4,6 +4,8 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useState } from "react";
 import { Animated, Platform, Pressable, Text, View } from "react-native";
+import { useAppDispatch } from "../redux/hooks";
+import { setExerciseDate } from "../redux/reducers/Application.reducers";
 import { formatWorkoutDate } from "../utils/date.utils";
 
 interface Props {
@@ -14,11 +16,19 @@ export default function Header() {
 	const [isConsistent, setIsConsistent] = useState(true);
 	const [date, setDate] = useState(new Date());
 	const [open, setOpen] = useState(false);
+	const dispatch = useAppDispatch();
+	const today = new Date();
+	today.setHours(0, 0, 0, 0);
 
 	const onDateChange = (direction: number) => {
-		const newDate = new Date(date);
+		const newDate = today;
 		newDate.setDate(date.getDate() + direction);
+
+		//future date selection is not allowed
+		if (newDate.getDate() > today.getDate()) return;
+
 		setDate(newDate);
+		dispatch(setExerciseDate(newDate.toDateString()));
 	};
 
 	return (
@@ -83,6 +93,7 @@ export default function Header() {
 					{open && (
 						<DateTimePicker
 							value={date}
+							maximumDate={today}
 							mode="date"
 							themeVariant="dark"
 							display={
@@ -90,16 +101,32 @@ export default function Header() {
 							}
 							onChange={(_, selectedDate) => {
 								setOpen(false);
-								if (selectedDate) setDate(selectedDate);
+								if (selectedDate) {
+									setDate(selectedDate);
+									dispatch(
+										setExerciseDate(
+											selectedDate.toDateString(),
+										),
+									);
+								}
 							}}
 						/>
 					)}
 				</>
 
 				<Pressable
+					disabled={date.getDate() === today.getDate()}
 					onPress={() => onDateChange(1)}
 					className="flex items-center justify-center w-20 h-full">
-					<AntDesign name="right" size={20} color="#f1f5f9" />
+					<AntDesign
+						name="right"
+						size={20}
+						color={
+							date.getDate() === today.getDate()
+								? "#383838"
+								: "#f1f5f9"
+						}
+					/>
 				</Pressable>
 			</View>
 		</View>
