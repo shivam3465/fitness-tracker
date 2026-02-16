@@ -3,10 +3,12 @@ import Feather from "@expo/vector-icons/Feather";
 import { router } from "expo-router";
 import { Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useAppDispatch } from "../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { AppModeModel } from "../redux/reducers/Application.reducers";
 import { logExercise } from "../redux/reducers/ExerciseLogs.reducers";
 
 function LogExerciseHeader() {
+	const appMode = useAppSelector((state) => state.applicationContext.mode);
 	const dispatch = useAppDispatch();
 
 	return (
@@ -25,15 +27,23 @@ function LogExerciseHeader() {
 
 				{/* TITLE */}
 				<Text className="flex-1 text-center text-[17px] font-semibold text-slate-100">
-					Log Exercise
+					{appMode == AppModeModel.EDIT
+						? "Edit Exercise"
+						: appMode === AppModeModel.VIEW
+							? "Exercise Detail"
+							: "Log Exercise"}
 				</Text>
 
 				{/* RIGHT SPACER (for perfect centering) */}
-				<Pressable
-					onPress={() => dispatch(logExercise(true))}
-					className="mr-2 h-10 w-10 items-center justify-center active:bg-[#151515] rounded-lg">
-					<Feather name="check" size={24} color="#f97316" />
-				</Pressable>
+				{appMode === AppModeModel.VIEW ? (
+					<View className="mr-2 h-10 w-10"></View>
+				) : (
+					<Pressable
+						onPress={() => dispatch(logExercise(true))}
+						className="mr-2 h-10 w-10 items-center justify-center active:bg-[#151515] rounded-lg">
+						<Feather name="check" size={24} color="#f97316" />
+					</Pressable>
+				)}
 			</View>
 		</SafeAreaView>
 	);

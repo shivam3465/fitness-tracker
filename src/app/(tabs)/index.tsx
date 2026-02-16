@@ -1,12 +1,17 @@
 import EmptyExerciseView from "@/src/components/EmptyExerciseView";
 import { ExerciseLogModel } from "@/src/models/ExerciseLog.model";
 import { useAppDispatch, useAppSelector } from "@/src/redux/hooks";
+import {
+	AppModeModel,
+	setExerciseViewing,
+	setMode,
+} from "@/src/redux/reducers/Application.reducers";
 import { setExerciseLogs } from "@/src/redux/reducers/ExerciseLogs.reducers";
 import { StorageService } from "@/src/services/storage.services";
 import Entypo from "@expo/vector-icons/Entypo";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { FlatList, Image, Text, View } from "react-native";
+import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 import {
 	Menu,
 	MenuOption,
@@ -34,6 +39,15 @@ export default function HomeScreen() {
 		cable: require("@/assets/instruments/cable.png"),
 		ball: require("@/assets/instruments/ball.png"),
 	};
+	const instrumentLabels: { [key: string]: string } = {
+		barbell: "Barbell",
+		dumbbell: "Dumbell",
+		machine: "Machine",
+		bodyweight: "Body Weight",
+		kettlebell: "Kettle-bell",
+		cable: "Cable Machine",
+		ball: "Ball",
+	};
 
 	const filterExerciseLogs = (date: string) => {
 		const filteredLogs = exerciseData.filter(
@@ -48,7 +62,18 @@ export default function HomeScreen() {
 		dispatch(setExerciseLogs(updatedExerciseLogs));
 	};
 
+	const handleExerciseEdit = (exercise: ExerciseLogModel) => {
+		dispatch(setExerciseViewing(exercise));
+		dispatch(setMode(AppModeModel.EDIT));
+
+		router.push({
+			pathname: "/log-exercise",
+		});
+	};
+
 	useEffect(() => {
+		dispatch(setExerciseViewing(null));
+		dispatch(setMode(AppModeModel.NORMAL));
 		filterExerciseLogs(date);
 	}, [date, exerciseData]);
 
@@ -60,7 +85,12 @@ export default function HomeScreen() {
 			instrumentIcons[instrumentName] || instrumentIcons.dumbbell;
 
 		return (
-			<View
+			<TouchableOpacity
+				onPress={() => {
+					dispatch(setMode(AppModeModel.VIEW));
+					dispatch(setExerciseViewing(item));
+					router.navigate("/log-exercise");
+				}}
 				key={date}
 				className="bg-black/20 mb-4 relative rounded-xl border border-[#252525]">
 				<View className="flex items-center justify-between flex-row mb-2 border-b-[1px] border-[#2a2a2a] mx-2">
@@ -104,12 +134,9 @@ export default function HomeScreen() {
 									},
 								}}>
 								<MenuOption
-									onSelect={() =>
-										router.push({
-											pathname: "/log-exercise",
-											params: { edit: "true" },
-										})
-									}>
+									onSelect={() => {
+										handleExerciseEdit(item);
+									}}>
 									{/* Styling ke liye View ka use karein */}
 									<View className="px-4 py-2 border-b border-[#272727]">
 										<Text className="text-white">Edit</Text>
@@ -167,14 +194,14 @@ export default function HomeScreen() {
 						<Image
 							source={iconSource}
 							style={{ resizeMode: "contain" }}
-							className="object-center w-[40px] h-[40px] border-[1px] border-orange-400 rounded-md"
+							className="object-center w-[40px] h-[40px] border-[0px] border-orange-400 rounded-md"
 						/>
 						<Text className="text-gray-500 text-sm mt-2">
-							Instrument
+							{instrumentLabels[sets[0]?.performedWith]}
 						</Text>
 					</View>
 				</View>
-			</View>
+			</TouchableOpacity>
 		);
 	};
 

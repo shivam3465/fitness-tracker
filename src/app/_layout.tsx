@@ -92,7 +92,6 @@ export default function RootLayout() {
 								name="log-exercise"
 								options={{
 									headerShown: true,
-									headerTitle: "Log Exercise",
 									header: () => {
 										return <LogExerciseHeader />;
 									},

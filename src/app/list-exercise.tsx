@@ -11,9 +11,14 @@ import {
 } from "react-native";
 import { ExerciseModel } from "../models/Exercise.model";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { setSelectedExercise } from "../redux/reducers/Application.reducers";
+import {
+	AppModeModel,
+	setExerciseViewing,
+	setMode,
+	setSelectedExercise,
+} from "../redux/reducers/Application.reducers";
 
-export default function LogExerciseScreen() {
+export default function ListExerciseScreen() {
 	const [search, setSearch] = useState("");
 	const [activeCat, setActiveCat] = useState("All"); //stores id of active category
 	const [isModalVisible, setIsModalVisible] = useState(false);
@@ -40,6 +45,8 @@ export default function LogExerciseScreen() {
 
 	const handleExerciseAdd = (exercise: ExerciseModel) => {
 		dispatch(setSelectedExercise(exercise));
+		dispatch(setExerciseViewing(null));
+		dispatch(setMode(AppModeModel.NORMAL));
 		router.push("/log-exercise");
 	};
 
