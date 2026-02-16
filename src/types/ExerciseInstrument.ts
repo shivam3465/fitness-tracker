@@ -1,9 +1,9 @@
 export enum ExerciseInstrument {
 	BARBELL = "barbell",
 	DUMBBELL = "dumbbell",
+	CABLE = "cable",
 	MACHINE = "machine",
 	BODYWEIGHT = "bodyweight",
-	KETTLEBELL = "kettlebell",
-	CABLE = "cable",
 	BALL = "ball",
+	KETTLEBELL = "kettlebell",
 }

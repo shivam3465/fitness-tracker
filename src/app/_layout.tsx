@@ -5,6 +5,7 @@ import {
 } from "@react-navigation/native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { MenuProvider } from "react-native-popup-menu";
 
 import Toast, { BaseToast, ErrorToast } from "react-native-toast-message";
 
@@ -60,60 +61,62 @@ export default function RootLayout() {
 	};
 	return (
 		<>
-			<Provider store={store}>
-				<ThemeProvider value={DarkTheme || DefaultTheme}>
-					<Stack
-						screenOptions={{
-							headerShown: false,
-							animation: "ios_from_right",
-							animationDuration: 350,
-							contentStyle: {
-								backgroundColor: "#1c1c1e",
-							},
-						}}>
-						<Stack.Screen
-							name="index"
-							options={{ headerShown: false }}
-						/>
-						<Stack.Screen
-							name="(tabs)"
-							options={{ headerShown: false }}
-						/>
-						<Stack.Screen
-							name="list-exercise"
-							options={{
-								headerShown: true,
-								headerTitle: "Exercise List",
-							}}
-						/>
-						<Stack.Screen
-							name="log-exercise"
-							options={{
-								headerShown: true,
-								headerTitle: "Log Exercise",
-								header: () => {
-									return <LogExerciseHeader />;
+			<MenuProvider>
+				<Provider store={store}>
+					<ThemeProvider value={DarkTheme || DefaultTheme}>
+						<Stack
+							screenOptions={{
+								headerShown: false,
+								animation: "ios_from_right",
+								animationDuration: 350,
+								contentStyle: {
+									backgroundColor: "#1c1c1e",
 								},
-							}}
-						/>
-						<Stack.Screen
-							name="new-exercise"
-							options={{
-								headerTitle: "New Exercise",
-								headerShown: true,
-							}}
-						/>
-						<Stack.Screen
-							name="new-category"
-							options={{
-								headerTitle: "New Muscle Category",
-								headerShown: true,
-							}}
-						/>
-					</Stack>
-					<StatusBar style="auto" />
-				</ThemeProvider>
-			</Provider>
+							}}>
+							<Stack.Screen
+								name="index"
+								options={{ headerShown: false }}
+							/>
+							<Stack.Screen
+								name="(tabs)"
+								options={{ headerShown: false }}
+							/>
+							<Stack.Screen
+								name="list-exercise"
+								options={{
+									headerShown: true,
+									headerTitle: "Exercise List",
+								}}
+							/>
+							<Stack.Screen
+								name="log-exercise"
+								options={{
+									headerShown: true,
+									headerTitle: "Log Exercise",
+									header: () => {
+										return <LogExerciseHeader />;
+									},
+								}}
+							/>
+							<Stack.Screen
+								name="new-exercise"
+								options={{
+									headerTitle: "New Exercise",
+									headerShown: true,
+								}}
+							/>
+							<Stack.Screen
+								name="new-category"
+								options={{
+									headerTitle: "New Muscle Category",
+									headerShown: true,
+								}}
+							/>
+						</Stack>
+						<StatusBar style="auto" />
+					</ThemeProvider>
+				</Provider>
+			</MenuProvider>
 
 			{/* Toast container for rendering toast */}
 			<Toast config={toastConfig} position="bottom" bottomOffset={30} />

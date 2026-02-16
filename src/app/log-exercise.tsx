@@ -1,6 +1,6 @@
 import AntDesign from "@expo/vector-icons/AntDesign";
 import DateTimePickerAndroid from "@react-native-community/datetimepicker";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import {
 	Platform,
@@ -38,6 +38,7 @@ export default function LogExerciseScreen() {
 		(state) => state.exerciseLogsList.exerciseListData,
 	);
 	const exerciseOptionsList = useAppSelector((state) => state.exerciseList);
+	const { edit } = useLocalSearchParams();
 
 	const [date, setDate] = useState<Date>(() =>
 		storedDate ? new Date(storedDate) : new Date(),
@@ -82,7 +83,7 @@ export default function LogExerciseScreen() {
 			{
 				id: Date.now().toString(),
 				repetitions: 0,
-				weight: 0,
+				weight: "",
 				restTime: 0,
 				performedWith: ExerciseInstrument.BARBELL,
 			},
@@ -105,7 +106,7 @@ export default function LogExerciseScreen() {
 
 	const validateExerciseData = (data: ExerciseLogModel): boolean => {
 		// 1. Exercise name
-		if (!data.exercise) {
+		if (!data.exercise || !data.exercise.name) {
 			showError("Select one Exercise", "", 800);
 			return false;
 		}
@@ -137,7 +138,7 @@ export default function LogExerciseScreen() {
 			// weight
 			if (
 				set.performedWith !== ExerciseInstrument.BODYWEIGHT &&
-				(!set.weight || set.weight <= 0)
+				(!set.weight || parseFloat(set.weight) <= 0)
 			) {
 				showError(`Invalid weight in set ${i + 1}`, "", 800);
 				return false;
@@ -168,7 +169,7 @@ export default function LogExerciseScreen() {
 
 		//navigate to previous screen
 		setTimeout(() => {
-			router.back();
+			router.navigate("/(tabs)");
 		}, 800);
 	};
 
@@ -218,6 +219,7 @@ export default function LogExerciseScreen() {
 						open={exercisePickerOpen}
 						value={selectedExercise.id}
 						items={exerciseOptionsItems}
+						placeholder="Select exercise"
 						setOpen={(open) => {
 							return setExercisePickerOpen(!exercisePickerOpen);
 						}}
@@ -261,6 +263,13 @@ export default function LogExerciseScreen() {
 				{sets.map((set, index) => (
 					<View
 						key={set.id}
+						style={{
+							zIndex:
+								openSetId === set.id
+									? 999
+									: sets.length - index,
+							position: "relative",
+						}}
 						className="bg-[#1c1c1e] border border-[#2e2f31] rounded-xl mb-4">
 						{/* Header */}
 						<View className="flex-row justify-between items-center px-4 pt-4">
@@ -299,17 +308,22 @@ export default function LogExerciseScreen() {
 										)
 									}
 									listMode="SCROLLVIEW"
+									scrollViewProps={{
+										nestedScrollEnabled: true,
+									}}
+									maxHeight={400}
 									style={{
 										backgroundColor: "#262627",
 										borderColor: "#3a4049",
+										overflow: "scroll",
 									}}
 									dropDownContainerStyle={{
 										backgroundColor: "#1c1c1e",
 										borderColor: "#3a4049",
 									}}
 									textStyle={{ color: "#fff" }}
-									zIndex={3000}
-									zIndexInverse={1000}
+									zIndex={3000 - index}
+									zIndexInverse={1000 - index}
 									ArrowDownIconComponent={() => (
 										<AntDesign
 											name="down"
@@ -356,13 +370,17 @@ export default function LogExerciseScreen() {
 										<TextInput
 											keyboardType="decimal-pad"
 											value={String(set.weight)}
-											onChangeText={(v) =>
-												updateSet(
-													set.id,
-													"weight",
-													Number(v) || 0,
-												)
-											}
+											onChangeText={(v) => {
+												if (
+													/^\d*(\.\d{0,2})?$/.test(v)
+												) {
+													updateSet(
+														set.id,
+														"weight",
+														v,
+													);
+												}
+											}}
 											className="flex-1 text-white py-2 text-center"
 										/>
 										<Text className="text-gray-400  text-[14px]">

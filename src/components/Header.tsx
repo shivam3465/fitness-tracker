@@ -2,7 +2,7 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import Entypo from "@expo/vector-icons/Entypo";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Animated, Platform, Pressable, Text, View } from "react-native";
 import { useAppDispatch } from "../redux/hooks";
 import { setExerciseDate } from "../redux/reducers/Application.reducers";
@@ -17,15 +17,19 @@ export default function Header() {
 	const [date, setDate] = useState(new Date());
 	const [open, setOpen] = useState(false);
 	const dispatch = useAppDispatch();
-	const today = new Date();
-	today.setHours(0, 0, 0, 0);
+	const today = useMemo(() => {
+		const d = new Date();
+		d.setHours(0, 0, 0, 0);
+		return d;
+	}, []);
 
 	const onDateChange = (direction: number) => {
-		const newDate = today;
-		newDate.setDate(date.getDate() + direction);
+		const newDate = new Date(date);
+		newDate.setDate(newDate.getDate() + direction);
+		newDate.setHours(0, 0, 0, 0);
 
 		//future date selection is not allowed
-		if (newDate.getDate() > today.getDate()) return;
+		if (newDate > today) return;
 
 		setDate(newDate);
 		dispatch(setExerciseDate(newDate.toDateString()));
@@ -34,7 +38,7 @@ export default function Header() {
 	return (
 		<View>
 			{/* Main header  */}
-			<View className="flex-row items-center justify-between border-b-[1px] border-slate-800 p-4 bg-primary h-[60px]">
+			<View className="flex-row items-center justify-between p-4 bg-primary h-[60px]">
 				<View>
 					<Text className="text-lg text-slate-100 font-semibold">
 						FitnessTracker
@@ -76,7 +80,7 @@ export default function Header() {
 			</View>
 
 			{/* Date header  */}
-			<View className="flex-row items-center justify-between px-4 py-2 border-b border-slate-800 bg-primary h-[50px]">
+			<View className="flex-row items-center justify-between px-4 py-2 border-t-[0.5px] border-[#202020] bg-primary h-[50px]">
 				<Pressable
 					onPress={() => onDateChange(-1)}
 					className="flex items-center justify-center w-20 h-full">
